@@ -1,37 +1,29 @@
 #include "esp_camera.h"
 #include <WiFi.h>
-#define LED_BUILTIN 4  // ESP32-CAM built-in LED (next to the camera)
 
-
-//
-// WARNING!!! Make sure that you have either selected ESP32 Wrover Module,
-//            or another board which has PSRAM enabled
-//
-
-// Select camera model
-//define CAMERA_MODEL_WROVER_KIT
-//#define CAMERA_MODEL_ESP_EYE
-//#define CAMERA_MODEL_M5STACK_PSRAM
-//#define CAMERA_MODEL_M5STACK_WIDE
 #define CAMERA_MODEL_AI_THINKER
 
 #include "camera_pins.h"
+
+#define SIGNAL_PIN 14  // Digital Signal Output pin
 
 const char* ssid = "Isuru's S25 Ultra";
 const char* password = "12345678ii";
 
 void startCameraServer();
 
-boolean matchFace = false;
+bool matchFace = false;
+bool signalout = false;
 
 void setup() {
   Serial.begin(115200);
   Serial.setDebugOutput(true);
   Serial.println();
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW); // Turn off LED initially
 
+  pinMode(SIGNAL_PIN, OUTPUT);
+  digitalWrite(SIGNAL_PIN, LOW);  // Start with signal LOW
 
+  
   camera_config_t config;
   config.ledc_channel = LEDC_CHANNEL_0;
   config.ledc_timer = LEDC_TIMER_0;
@@ -93,6 +85,7 @@ void setup() {
 
   WiFi.begin(ssid, password);
 
+
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
@@ -107,15 +100,15 @@ void setup() {
   Serial.println("' to connect");
 }
 
+
+
+int stepsDone = 0;
+const int stepsToDo = 1000;
+
 void loop() {
-
-  if(matchFace==true){
-  digitalWrite(LED_BUILTIN, HIGH);
-  delay(100);
-  digitalWrite(LED_BUILTIN, LOW);
-  delay(100);
-  matchFace = false;
+    if (matchFace && !signalout) {
+    digitalWrite(SIGNAL_PIN, HIGH);  // Send signal once
+    signalout = true;
   }
-
 
 }
